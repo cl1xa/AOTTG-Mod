@@ -17,15 +17,15 @@
         //Misc
         //public static bool horseSpeedhack = false;
         public static bool bypassPassword = false;
-        public static bool debugConsole = true;
+        public static bool debugConsole = false;
 
         //Playerlist / Players
 
         //Protection
         public static bool response = false;
         public static bool logInvalidProperties = false;
-        public static bool logObjects = true;
-        public static bool logRPCs = true;
+        public static bool logObjects = false;
+        public static bool logRPCs = false;
         public static bool blockPause = false;
         public static bool blockMove = false;
     }

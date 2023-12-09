@@ -864,9 +864,9 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
             bool flag = num4 == mLocalActor.ID;
 
             if (flag)
-                Mod.NetworkHandler.HandleOperationResponse(sender, $"RPC view is null");
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"RPC view is null", false);
             else
-                Mod.NetworkHandler.HandleOperationResponse(sender, $"RPC view is null (ignore if host is bot)");
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"RPC view is null (2)", false);
 
             return;
         }
@@ -1012,8 +1012,13 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
             }
         }
 
+        //The code below this line is kind of trash and messy, I will consider redoing it
+
         if (num6 == 1)
+        {
+            //Mod.NetworkHandler.HandleOperationResponse(sender, $"Invalid RPC? | d:{num6}");
             return;
+        }
 
         string text2 = string.Empty;
 
@@ -1021,25 +1026,22 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
         {
             if (text2 != string.Empty)
                 text2 += ", ";
+
             text2 = ((type2 != null) ? (text2 + type2.Name) : (text2 + "null"));
         }
 
         if (num6 == 0)
         {
             if (num7 == 0)
-            {
-                Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (1)");
-                return;
-            }
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (1)", false);
             else
-            {
-                Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (2)");
-                return;
-            }
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (2)", false);
+
+            return;
         }
         else
         {
-            Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (3)");
+            Mod.NetworkHandler.HandleOperationResponse(sender, $"Unknown RPC data (3)", false);
             return;
         }
     }
@@ -2237,64 +2239,66 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
                 Mod.NetworkHandler.HandleOperationResponse(sender, "Invalid OSR view ID", false);
                 return;
             }
-            else if (photonView.prefix > 0 && correctPrefix != photonView.prefix)
+
+            if (photonView.prefix > 0 && correctPrefix != photonView.prefix)
             {
                 Mod.NetworkHandler.HandleOperationResponse(sender, $"OSR prefix mismatch | c:{correctPrefix} != s:{photonView.prefix}");
                 return;
             }
+
+            if (photonView.group != 0 && !allowedReceivingGroups.Contains(photonView.group))
+            {
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"OSR group mismatch | g:{photonView.group}");
+                return;
+            }
+
+            if (photonView.synchronization == ViewSynchronization.ReliableDeltaCompressed)
+            {
+                if (!DeltaCompressionRead(photonView, data))
+                {
+                    if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
+                        Mod.NetworkHandler.HandleOperationResponse(sender, $"Skipping packet | {photonView.viewID}");
+
+                    return;
+                }
+
+                photonView.lastOnSerializeDataReceived = data[(byte)1] as object[];
+            }
+            if (photonView.observed is MonoBehaviour)
+            {
+                object[] incomingData = data[(byte)1] as object[];
+
+                PhotonStream pStream = new PhotonStream(write: false, incomingData);
+                PhotonMessageInfo info = new PhotonMessageInfo(sender, networkTime, photonView);
+
+                photonView.ExecuteOnSerialize(pStream, info);
+            }
+            else if (photonView.observed is Transform)
+            {
+                object[] array = data[(byte)1] as object[];
+                Transform transform = (Transform)photonView.observed;
+
+                if (array.Length >= 1 && array[0] != null)
+                    transform.localPosition = (Vector3)array[0];
+                if (array.Length >= 2 && array[1] != null)
+                    transform.localRotation = (Quaternion)array[1];
+                if (array.Length >= 3 && array[2] != null)
+                    transform.localScale = (Vector3)array[2];
+            }
+            else if (photonView.observed is Rigidbody)
+            {
+                object[] array2 = data[(byte)1] as object[];
+                Rigidbody rigidbody = (Rigidbody)photonView.observed;
+
+                if (array2.Length >= 1 && array2[0] != null)
+                    rigidbody.velocity = (Vector3)array2[0];
+                if (array2.Length >= 2 && array2[1] != null)
+                    rigidbody.angularVelocity = (Vector3)array2[1];
+            }
             else
             {
-                if (photonView.group != 0 && !allowedReceivingGroups.Contains(photonView.group))
-                    return;
-
-                if (photonView.synchronization == ViewSynchronization.ReliableDeltaCompressed)
-                {
-                    if (!DeltaCompressionRead(photonView, data))
-                    {
-                        if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
-                            Mod.NetworkHandler.HandleOperationResponse(sender, $"Skipping packet | {photonView.viewID}");
-
-                        return;
-                    }
-
-                    photonView.lastOnSerializeDataReceived = data[(byte)1] as object[];
-                }
-                if (photonView.observed is MonoBehaviour)
-                {
-                    object[] incomingData = data[(byte)1] as object[];
-
-                    PhotonStream pStream = new PhotonStream(write: false, incomingData);
-                    PhotonMessageInfo info = new PhotonMessageInfo(sender, networkTime, photonView);
-
-                    photonView.ExecuteOnSerialize(pStream, info);
-                }
-                else if (photonView.observed is Transform)
-                {
-                    object[] array = data[(byte)1] as object[];
-                    Transform transform = (Transform)photonView.observed;
-
-                    if (array.Length >= 1 && array[0] != null)
-                        transform.localPosition = (Vector3)array[0];
-                    if (array.Length >= 2 && array[1] != null)
-                        transform.localRotation = (Quaternion)array[1];
-                    if (array.Length >= 3 && array[2] != null)
-                        transform.localScale = (Vector3)array[2];
-                }
-                else if (photonView.observed is Rigidbody)
-                {
-                    object[] array2 = data[(byte)1] as object[];
-                    Rigidbody rigidbody = (Rigidbody)photonView.observed;
-
-                    if (array2.Length >= 1 && array2[0] != null)
-                        rigidbody.velocity = (Vector3)array2[0];
-                    if (array2.Length >= 2 && array2[1] != null)
-                        rigidbody.angularVelocity = (Vector3)array2[1];
-                }
-                else
-                {
-                    Mod.NetworkHandler.HandleOperationResponse(sender, $"Type of observed is unknown when receiving");
-                    return;
-                }
+                Mod.NetworkHandler.HandleOperationResponse(sender, $"Type of observed is unknown when receiving");
+                return;
             }
         }
         catch (Exception ex)
@@ -2937,11 +2941,6 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
             return;
         }
 
-        //if (PhotonNetwork.logLevel >= PhotonLogLevel.Full)
-        //{
-        //    Debug.Log(string.Concat("Sending RPC \"", methodName, "\" to player[", player, "]"));
-        //}
-
         ExitGames.Client.Photon.Hashtable hashtable = new ExitGames.Client.Photon.Hashtable();
 
         hashtable[(byte)0] = view.viewID;
@@ -2978,17 +2977,14 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
         if (blockSendingGroups.Contains(view.group))
         {
             Mod.NetworkHandler.HandleOperationResponse(target.ToPlayer(), $"Invalid RPC (2) | m{methodName}");
+            return;
         }
 
         if (view.viewID < 1)
         {
             Mod.NetworkHandler.HandleOperationResponse(target.ToPlayer(), $"Illegal RPC view ID (2) | id:{view.viewID}");
+            return;
         }
-
-        //if (PhotonNetwork.logLevel >= PhotonLogLevel.Full)
-        //{
-        //    Debug.Log("Sending RPC \"" + methodName + "\" to " + target);
-        //}
 
         ExitGames.Client.Photon.Hashtable hashtable = new ExitGames.Client.Photon.Hashtable();
         hashtable[(byte)0] = view.viewID;
@@ -2997,6 +2993,7 @@ internal class NetworkingPeer : LoadbalancingPeer, IPhotonPeerListener
             hashtable[(byte)1] = (short)view.prefix;
 
         hashtable[(byte)2] = base.ServerTimeInMilliSeconds;
+
         int value = 0;
 
         if (rpcShortcuts.TryGetValue(methodName, out value))
