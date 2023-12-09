@@ -430,7 +430,7 @@ internal class FengGameManagerMKII : Photon.MonoBehaviour
         content = content.StripSize().FixHTMLFormatting();
         sender = sender.StripSize().FixHTMLFormatting();
 
-        chatRoom.addLINE($"<color=#FFC000>[{info.sender.ID}]</color> <color=white>{sender}: {content}</color>");
+        chatRoom.addLINE(string.Format("<color=#FFC000>[{0}]</color> <color=white>{1}{2} {3}</color>", info.sender.ID, sender, sender.Length > 0 ? ":" : "", content));
     }
 
     //Modified
