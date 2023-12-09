@@ -13,17 +13,13 @@
     <SignAssembly>False</SignAssembly>
     <NoWin32Manifest>true</NoWin32Manifest>
     <IsPublishable>False</IsPublishable>
-    <BaseOutputPath>C:\Users\Admin\Desktop\AoTTG RC Base\Game\AottgRC_Data\Managed</BaseOutputPath>
-    <BaseIntermediateOutputPath>C:\Users\Admin\Desktop\Aottg\aottg_Data\Managed</BaseIntermediateOutputPath>
-    <NeutralLanguage>aa</NeutralLanguage>
-    <PackageOutputPath>C:\Users\Admin\Desktop\AoTTG RC Base\Game\AottgRC_Data\Managed</PackageOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>False</Optimize>
+    <Optimize>True</Optimize>
     <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Optimize>False</Optimize>
+    <Optimize>True</Optimize>
     <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -33,21 +29,35 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Core" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\AottgRC64\AottgRC_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\AottgRC64\AottgRC_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Photon3Unity3D">
-      <HintPath>..\AottgRC64\AottgRC_Data\Managed\Photon3Unity3D.dll</HintPath>
-    </Reference>
+    <Compile Remove="bin\**" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="bin\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\AottgRC64\AottgRC_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-UnityScript">
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\Assembly-UnityScript.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-UnityScript-firstpass">
-      <HintPath>..\AottgRC64\AottgRC_Data\Managed\Assembly-UnityScript-firstpass.dll</HintPath>
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\Assembly-UnityScript-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\Photon3Unity3D.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityScript.Lang">
+      <HintPath>..\..\AottgRC64\AottgRC_Data\Managed\UnityScript.Lang.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
