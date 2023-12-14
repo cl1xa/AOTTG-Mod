@@ -419,9 +419,7 @@ internal class FengGameManagerMKII : Photon.MonoBehaviour
     [RPC]
     private void Chat(string content, string sender, PhotonMessageInfo info = null)
     {
-        bool ismc = info.sender.isMasterClient;
-
-        if (!ismc && content.StripHTML().Length > 300)
+        if (!info.sender.isMasterClient && content.StripHTML().Length > 300)
         {
             Mod.NetworkHandler.HandleOperationResponse(info.sender, "Large chat message");
             return;

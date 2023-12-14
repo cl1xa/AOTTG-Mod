@@ -269,6 +269,26 @@ internal class TITAN : Photon.MonoBehaviour
                 GUILayout.Label("<b><color=#FF0000>[TITAN]</color></b>");
                 GUILayout.EndArea();
             }
+
+			//Alternate, should probably cache the titans... lol
+            //foreach (TITAN titan in FindObjectsOfType<TITAN>())
+            //{
+            //    if (titan == null || titan.transform == null)
+            //        continue;
+
+            //    Vector3? vector = Camera.main.WorldToScreenPoint(titan.transform.position);
+            //    Vector3 value = vector.Value;
+
+            //    if (vector.HasValue && value.z > 0f)
+            //    {
+            //        Vector2 vector2 = GUIUtility.ScreenToGUIPoint(value);
+            //        vector2.y = (float)Screen.height - vector2.y;
+
+            //        GUILayout.BeginArea(new Rect(vector2.x, vector2.y, 200f, 120f));
+            //        GUILayout.Label("<b><color=#FF0000>[TITAN]</color></b>");
+            //        GUILayout.EndArea();
+            //    }
+            //}
         }
     }
 
